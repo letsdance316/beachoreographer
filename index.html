@@ -9,29 +9,24 @@
             font-family: Arial, sans-serif;
             text-align: center;
         }
-        canvas {
-            margin-top: 20px;
+        #danceCanvas {
+            margin: 20px auto;
+            display: block;
             background-color: #f0f0f0;
             border: 1px solid #ccc;
         }
-        input[type="file"] {
-            margin-top: 20px;
-        }
     </style>
-    <!-- p5.js Core Library -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.4.0/p5.js"></script>
-
-    <!-- p5.js Sound Library (for loadSound) -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.4.0/addons/p5.sound.min.js"></script>
 </head>
 <body>
     <h1>Dance Choreography Tool</h1>
-    <p>Upload a song and choreograph your moves!</p>
-    <input type="file" id="fileInput" accept="audio/*">
-    <br>
-    <button id="playButton" style="display:none;">Play</button>
-    <canvas id="danceCanvas"></canvas>
-
+    <label for="dancerColor">Dancer Color:</label>
+    <input type="color" id="dancerColor" value="#0000ff">
+    <label for="dancerSize">Size:</label>
+    <input type="number" id="dancerSize" value="20" min="10" max="50">
+    <button id="addDancer">Add Dancer</button>
+    <div id="danceCanvas"></div>
     <script src="script.js"></script>
 </body>
 </html>
+

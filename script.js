@@ -7,26 +7,21 @@ function setup() {
     canvas.parent('danceCanvas');
     background(240);
 
-    // Create Play Button
-    playButton = createButton('Play');
-    playButton.position(20, 20);
+    // Initialize Play Button
+    playButton = select('#playButton');
     playButton.mousePressed(togglePlayPause);
     playButton.hide();
+
+    // Initialize Add Dancer Button
+    select('#addDancer').mousePressed(addDancer);
 
     // File input for music
     let fileInput = document.getElementById('fileInput');
     fileInput.addEventListener('change', handleFileUpload);
-
-    // Add dancer button
-    document.getElementById('addDancer').addEventListener('click', addDancer);
 }
 
 function draw() {
     background(240);
-
-    if (song && song.isPlaying()) {
-        // Visualize or sync movements with the song
-    }
 
     dancers.forEach(dancer => {
         dancer.move();
@@ -41,6 +36,7 @@ function handleFileUpload(event) {
         reader.onload = function (e) {
             song = loadSound(e.target.result, () => {
                 playButton.show();
+                playButton.removeAttribute('disabled');
             });
         };
         reader.readAsDataURL(file);

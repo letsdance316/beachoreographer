@@ -3,16 +3,30 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dance Choreography Tool</title>
+    <title>Simple Dance Choreography Tool</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+        }
+        canvas {
+            margin-top: 20px;
+            background-color: #f0f0f0;
+            border: 1px solid #ccc;
+        }
+        input[type="file"] {
+            margin-top: 20px;
+        }
+    </style>
+    <!-- Link to p5.js and p5.sound -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.4.0/p5.js"></script>
-    <script src="p5.sound.min.js"></script> <!-- Make sure this file is present -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.4.0/addons/p5.sound.min.js"></script>
 </head>
 <body>
     <h1>Dance Choreography Tool</h1>
     <p>Upload a song and choreograph your moves!</p>
     <input type="file" id="fileInput" accept="audio/*">
     <br>
-    <button id="playButton">Play</button>
     <canvas id="danceCanvas"></canvas>
 
     <script>
@@ -23,7 +37,8 @@
         function setup() {
             createCanvas(600, 400);
             background(240);
-            playButton = select('#playButton');
+            playButton = createButton("Play");
+            playButton.position(10, 10);
             playButton.mousePressed(togglePlay);
 
             let input = document.getElementById('fileInput');
@@ -65,84 +80,50 @@
             }
         }
 
-        // Humanoid Dancer class
+        // Create a humanoid dancer class
         class Dancer {
-            constructor(x, y, size) {
+            constructor(x, y, scale) {
                 this.x = x;
                 this.y = y;
-                this.size = size;  // Head size
-                this.angle = 0;    // For animating body movements
-                this.skinColor = color(255, 220, 185);  // Default skin tone
-                this.shirtColor = color(0, 0, 255);  // Default shirt color (blue)
-                this.pantsColor = color(0, 0, 255);  // Default pants color (blue)
-                this.shoeColor = color(0, 0, 0);  // Default shoe color (black)
+                this.scale = scale;
+                this.angle = 0;
             }
 
             move() {
-                // Simple dance movement based on time to simulate a "walking" or "dancing" animation
-                this.angle += 0.1;
-                let beat = song ? song.currentTime() : 0;
+                // Sync movement with the song's current time
+                let beat = song.currentTime(); 
+                this.angle = Math.sin(beat * 2 * Math.PI) * 0.5; // Simple sway movement
 
-                // Moving arms and legs to simulate walking or dancing
-                this.leftLegY = this.y + this.size * 2 + Math.sin(beat * 2) * 20;
-                this.rightLegY = this.y + this.size * 2 + Math.cos(beat * 2) * 20;
-
-                this.leftArmX = this.x - Math.cos(beat * 1.5) * 30;
-                this.rightArmX = this.x + Math.cos(beat * 1.5) * 30;
+                // Make the dancer move left and right
+                this.x = 300 + Math.sin(beat) * 150;
+                this.y = 200 + Math.cos(beat) * 50;
             }
 
             display() {
-                // Head (circle)
-                fill(this.skinColor);
-                ellipse(this.x, this.y - this.size, this.size * 2);  // Head
-                
-                // Body (shirt)
-                fill(this.shirtColor);
-                rect(this.x - 10, this.y - this.size, 20, this.size * 2);  // Body
+                fill(100, 100, 255);
+                stroke(0);
 
-                // Arms (rectangles for the upper arm and lower arm)
-                fill(this.skinColor);
-                rect(this.x - 10, this.y - this.size + 10, 5, 20);  // Left upper arm
-                rect(this.x - 10, this.y - this.size + 30, 5, 20);  // Left lower arm
-                rect(this.x + 5, this.y - this.size + 10, 5, 20);   // Right upper arm
-                rect(this.x + 5, this.y - this.size + 30, 5, 20);   // Right lower arm
+                // Draw head
+                ellipse(this.x, this.y - 40, 30);
 
-                // Legs (rectangles for thighs and lower legs)
-                fill(this.pantsColor);
-                rect(this.x - 20, this.y + this.size, 10, 30);  // Left thigh
-                rect(this.x - 20, this.y + this.size + 30, 10, 20);  // Left lower leg
-                rect(this.x + 10, this.y + this.size, 10, 30);  // Right thigh
-                rect(this.x + 10, this.y + this.size + 30, 10, 20);  // Right lower leg
+                // Draw body
+                line(this.x, this.y - 20, this.x, this.y + 30);
 
-                // Shoes (rectangles for shoes)
-                fill(this.shoeColor);
-                rect(this.x - 20, this.y + this.size + 50, 10, 5);  // Left shoe
-                rect(this.x + 10, this.y + this.size + 50, 10, 5);  // Right shoe
-            }
+                // Draw arms
+                line(this.x - 30, this.y, this.x + 30, this.y);
 
-            setSkinColor(newColor) {
-                this.skinColor = newColor;
-            }
-
-            setShirtColor(newColor) {
-                this.shirtColor = newColor;
-            }
-
-            setPantsColor(newColor) {
-                this.pantsColor = newColor;
-            }
-
-            setShoeColor(newColor) {
-                this.shoeColor = newColor;
+                // Draw legs
+                line(this.x, this.y + 30, this.x - 30, this.y + 60);
+                line(this.x, this.y + 30, this.x + 30, this.y + 60);
             }
         }
 
-        // Add a new dancer when key '1' or '2' is pressed
+        // Add dancers to the stage
         function keyPressed() {
             if (key === '1') {
-                dancers.push(new Dancer(200, 200, 20));
+                dancers.push(new Dancer(200, 200, 1));
             } else if (key === '2') {
-                dancers.push(new Dancer(400, 200, 20));
+                dancers.push(new Dancer(400, 200, 1));
             }
         }
     </script>

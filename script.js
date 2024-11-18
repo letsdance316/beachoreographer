@@ -11,7 +11,7 @@ function setup() {
 
     // Play button
     playButton = createButton("Play");
-    playButton.position(10, 10);
+    playButton.position(10, 40);  // Adjusting position if necessary
     playButton.mousePressed(togglePlay);
     
     // Dancer add button

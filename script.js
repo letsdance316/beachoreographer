@@ -1,4 +1,7 @@
 let dancers = [];
+let song;
+let isPlaying = false;
+let playPauseButton;
 
 function setup() {
     let canvas = createCanvas(600, 400);
@@ -11,6 +14,13 @@ function setup() {
         let size = parseInt(document.getElementById('dancerSize').value);
         dancers.push(new StickFigure(random(width), random(height), size, color));
     });
+
+    // Music controls
+    playPauseButton = document.getElementById('playPauseButton');
+    playPauseButton.addEventListener('click', togglePlayPause);
+
+    let fileInput = document.getElementById('fileInput');
+    fileInput.addEventListener('change', handleFileUpload);
 }
 
 function draw() {
@@ -21,6 +31,33 @@ function draw() {
         dancer.display();
         dancer.move();
     });
+}
+
+// Handle file upload for music
+function handleFileUpload(event) {
+    const file = event.target.files[0];
+    if (file) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            song = loadSound(e.target.result, () => {
+                playPauseButton.disabled = false; // Enable play button
+            });
+        };
+        reader.readAsDataURL(file);
+    }
+}
+
+// Play or pause the music
+function togglePlayPause() {
+    if (song.isPlaying()) {
+        song.pause();
+        playPauseButton.textContent = "Play";
+        isPlaying = false;
+    } else {
+        song.play();
+        playPauseButton.textContent = "Pause";
+        isPlaying = true;
+    }
 }
 
 // StickFigure class
@@ -37,14 +74,17 @@ class StickFigure {
     }
 
     move() {
-        // Movement logic
-        this.x += sin(this.angle) * 2;
-        this.y += cos(this.angle) * 2;
-        this.angle += 0.05;
+        // Make movements synchronize with music beat if music is playing
+        if (isPlaying && song) {
+            let beat = map(song.currentTime() % 1, 0, 1, -0.5, 0.5);
+            this.armSwing += this.swingDirection * (0.05 + beat);
+            this.legSwing += this.swingDirection * (0.03 + beat);
+        } else {
+            // Default swinging motion
+            this.armSwing += this.swingDirection * 0.05;
+            this.legSwing += this.swingDirection * 0.03;
+        }
 
-        // Arm and leg swing
-        this.armSwing += this.swingDirection * 0.05;
-        this.legSwing += this.swingDirection * 0.03;
         if (this.armSwing > 0.5 || this.armSwing < -0.5) {
             this.swingDirection *= -1;
         }
@@ -81,4 +121,5 @@ class StickFigure {
              this.y + this.size / 2 + bodyLength + legLength * sin(this.legSwing));
     }
 }
+
 

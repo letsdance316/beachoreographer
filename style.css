@@ -1,0 +1,15 @@
+body {
+    font-family: Arial, sans-serif;
+    text-align: center;
+    margin: 0;
+    padding: 0;
+}
+
+#danceCanvas {
+    margin: 20px auto;
+    width: 600px;
+    height: 400px;
+    background-color: #f0f0f0;
+    border: 1px solid #ccc;
+    position: relative;
+}

@@ -39,8 +39,11 @@ function handleFileUpload(event) {
     if (file) {
         const reader = new FileReader();
         reader.onload = function(e) {
-            song = loadSound(e.target.result, () => {
-                playPauseButton.disabled = false; // Enable play button
+            // Load sound after user gesture
+            createAudioContext(() => {
+                song = loadSound(e.target.result, () => {
+                    playPauseButton.disabled = false; // Enable play button
+                });
             });
         };
         reader.readAsDataURL(file);
@@ -49,14 +52,23 @@ function handleFileUpload(event) {
 
 // Play or pause the music
 function togglePlayPause() {
-    if (song.isPlaying()) {
+    if (song && song.isPlaying()) {
         song.pause();
         playPauseButton.textContent = "Play";
         isPlaying = false;
-    } else {
+    } else if (song) {
         song.play();
         playPauseButton.textContent = "Pause";
         isPlaying = true;
+    }
+}
+
+// Ensure the AudioContext starts on user gesture
+function createAudioContext(callback) {
+    if (getAudioContext().state !== 'running') {
+        getAudioContext().resume().then(callback);
+    } else {
+        callback();
     }
 }
 
@@ -121,5 +133,3 @@ class StickFigure {
              this.y + this.size / 2 + bodyLength + legLength * sin(this.legSwing));
     }
 }
-
-

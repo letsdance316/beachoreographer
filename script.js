@@ -1,79 +1,98 @@
 let song;
 let dancers = [];
-let playButton = document.getElementById("playButton");
 
 function setup() {
-    createCanvas(600, 400);
+    let canvas = createCanvas(600, 400);
+    canvas.parent('danceCanvas');
     background(240);
-    playButton.addEventListener('click', togglePlay);
-    let input = document.getElementById('fileInput');
-    input.addEventListener('change', handleFileSelect, false);
-    console.log("p5.js setup has loaded!");
+
+    // Event listener for adding dancers
+    document.getElementById('addDancer').addEventListener('click', () => {
+        let color = document.getElementById('dancerColor').value;
+        let size = parseInt(document.getElementById('dancerSize').value);
+        dancers.push(new StickFigure(random(width), random(height), size, color));
+    });
 }
 
 function draw() {
     background(240);
+
+    // Draw the dancers
     dancers.forEach(dancer => {
         dancer.display();
         dancer.move();
     });
 }
 
-function handleFileSelect(event) {
-    const file = event.target.files[0];
-    if (file) {
-        const reader = new FileReader();
-        reader.onload = function(e) {
-            song = loadSound(e.target.result, songLoaded);
-        };
-        reader.readAsDataURL(file);
-    }
-}
-
-function songLoaded() {
-    playButton.style.display = 'inline-block'; // Show play button after song is loaded
-    console.log("Song has loaded!");
-}
-
-function togglePlay() {
-    if (song && song.isPlaying()) { // Check if the song is loaded and playing
-        song.pause();
-        playButton.innerText = "Play";
-    } else if (song) {
-        song.play();
-        playButton.innerText = "Pause";
-    }
-}
-
-// Create a simple dancer class
-class Dancer {
-    constructor(x, y, radius) {
+// Stick figure class
+class StickFigure {
+    constructor(x, y, size, color) {
         this.x = x;
         this.y = y;
-        this.radius = radius;
-        this.angle = 0;
+        this.size = size; // Head size determines proportions
+        this.color = color;
+        this.angle = random(TWO_PI); // For movement
+        this.armSwing = 0; // Arm movement angle
+        this.legSwing = 0; // Leg movement angle
+        this.swingDirection = 1; // Control swing direction
     }
 
     move() {
-        if (song && song.isPlaying()) { // Ensure song is loaded and playing
-            let beat = song.currentTime(); 
-            this.x = 200 + Math.sin(this.angle) * 100;
-            this.y = 200 + Math.cos(this.angle) * 100;
-            this.angle += 0.1 + (beat % 2) * 0.02; // Sync movement with the song time
+        // Simple movement
+        this.x += sin(this.angle) * 2;
+        this.y += cos(this.angle) * 2;
+        this.angle += 0.05;
+
+        // Swing arms and legs
+        this.armSwing += this.swingDirection * 0.05;
+        this.legSwing += this.swingDirection * 0.03;
+
+        // Reverse swing direction for natural movement
+        if (this.armSwing > 0.5 || this.armSwing < -0.5) {
+            this.swingDirection *= -1;
         }
     }
 
     display() {
-        fill(100, 100, 255);
-        ellipse(this.x, this.y, this.radius * 2);
-    }
-}
+        stroke(this.color);
+        strokeWeight(2);
 
-// Add dancers to the stage
-function keyPressed() {
-    if (key === '1') {
-        dancers.push(new Dancer(200, 200, 20));
-    } else if (key === '2') {
-        dancers.push(new Dancer(400, 200, 20));
+        // Head
+        fill(this.color);
+        ellipse(this.x, this.y, this.size); // Head is proportional to size
+
+        // Body
+        let bodyLength = this.size * 1.5;
+        line(this.x, this.y + this.size / 2, this.x, this.y + this.size / 2 + bodyLength);
+
+        // Arms
+        let armLength = this.size;
+        line(
+            this.x, 
+            this.y + this.size / 2 + bodyLength / 4, 
+            this.x + armLength * cos(this.armSwing), 
+            this.y + this.size / 2 + bodyLength / 4 + armLength * sin(this.armSwing)
+        );
+        line(
+            this.x, 
+            this.y + this.size / 2 + bodyLength / 4, 
+            this.x - armLength * cos(this.armSwing), 
+            this.y + this.size / 2 + bodyLength / 4 + armLength * sin(this.armSwing)
+        );
+
+        // Legs
+        let legLength = this.size * 1.2;
+        line(
+            this.x, 
+            this.y + this.size / 2 + bodyLength, 
+            this.x + legLength * cos(this.legSwing), 
+            this.y + this.size / 2 + bodyLength + legLength * sin(this.legSwing)
+        );
+        line(
+            this.x, 
+            this.y + this.size / 2 + bodyLength, 
+            this.x - legLength * cos(this.legSwing), 
+            this.y + this.size / 2 + bodyLength + legLength * sin(this.legSwing)
+        );
     }
 }

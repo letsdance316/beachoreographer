@@ -1,102 +1,96 @@
 let song;
 let dancers = [];
 let playButton;
-let canvas;
 
 function setup() {
-    canvas = createCanvas(600, 400);
-    canvas.parent('danceCanvas');
+    createCanvas(600, 400);
     background(240);
-
-    // Initialize play button
-    playButton = select('#playButton');
+    playButton = createButton("Play");
+    playButton.position(10, 10);
     playButton.mousePressed(togglePlay);
 
-    // File input setup
-    const fileInput = select('#fileInput');
-    fileInput.changed(handleFileSelect);
+    let input = document.getElementById('fileInput');
+    input.addEventListener('change', handleFileSelect, false);
 }
 
 function draw() {
     background(240);
 
-    // Draw dancers
+    // Draw the dancers
     dancers.forEach(dancer => {
         dancer.display();
         dancer.move();
     });
 }
 
-// Handle audio file upload
 function handleFileSelect(event) {
     const file = event.target.files[0];
     if (file) {
         const reader = new FileReader();
-        reader.onload = function (e) {
-            song = loadSound(e.target.result, songLoaded, songError);
+        reader.onload = function(e) {
+            song = loadSound(e.target.result, songLoaded);
         };
         reader.readAsDataURL(file);
     }
 }
 
-// Called when the song is loaded successfully
 function songLoaded() {
-    playButton.removeAttribute('disabled');
+    playButton.show();
 }
 
-// Called if there's an error loading the song
-function songError(err) {
-    console.error('Error loading song:', err);
-}
-
-// Play/pause toggle
 function togglePlay() {
-    if (song && song.isPlaying()) {
+    if (song.isPlaying()) {
         song.pause();
-        playButton.html('Play');
-    } else if (song) {
+        playButton.html("Play");
+    } else {
         song.play();
-        playButton.html('Pause');
+        playButton.html("Pause");
     }
 }
 
-// Simple Dancer class
+// Create a humanoid dancer class
 class Dancer {
-    constructor(x, y, size, skinColor, shirtColor, pantsColor) {
+    constructor(x, y, scale) {
         this.x = x;
         this.y = y;
-        this.size = size;
-        this.skinColor = skinColor;
-        this.shirtColor = shirtColor;
-        this.pantsColor = pantsColor;
+        this.scale = scale;
+        this.angle = 0;
     }
 
     move() {
-        // Basic movement logic
-        this.y += sin(frameCount * 0.1) * 2;
+        // Sync movement with the song's current time
+        let beat = song.currentTime(); 
+        this.angle = Math.sin(beat * 2 * Math.PI) * 0.5; // Simple sway movement
+
+        // Make the dancer move left and right
+        this.x = 300 + Math.sin(beat) * 150;
+        this.y = 200 + Math.cos(beat) * 50;
     }
 
     display() {
-        push();
-        fill(this.skinColor);
-        ellipse(this.x, this.y - this.size * 0.6, this.size * 0.4); // Head
+        fill(100, 100, 255);
+        stroke(0);
 
-        fill(this.shirtColor);
-        rect(this.x - this.size * 0.2, this.y - this.size * 0.3, this.size * 0.4, this.size * 0.5); // Body
+        // Draw head
+        ellipse(this.x, this.y - 40, 30);
 
-        fill(this.pantsColor);
-        rect(this.x - this.size * 0.15, this.y, this.size * 0.1, this.size * 0.4); // Left leg
-        rect(this.x + this.size * 0.05, this.y, this.size * 0.1, this.size * 0.4); // Right leg
-        pop();
+        // Draw body
+        line(this.x, this.y - 20, this.x, this.y + 30);
+
+        // Draw arms
+        line(this.x - 30, this.y, this.x + 30, this.y);
+
+        // Draw legs
+        line(this.x, this.y + 30, this.x - 30, this.y + 60);
+        line(this.x, this.y + 30, this.x + 30, this.y + 60);
     }
 }
 
-// Add dancer when the button is clicked
-select('#addDancer').mousePressed(() => {
-    const skinColor = select('#skinColor').value();
-    const shirtColor = select('#shirtColor').value();
-    const pantsColor = select('#pantsColor').value();
-    const size = parseInt(select('#dancerSize').value(), 10);
-
-    dancers.push(new Dancer(random(100, 500), 300, size, skinColor, shirtColor, pantsColor));
-});
+// Add dancers to the stage
+function keyPressed() {
+    if (key === '1') {
+        dancers.push(new Dancer(200, 200, 1));
+    } else if (key === '2') {
+        dancers.push(new Dancer(400, 200, 1));
+    }
+}

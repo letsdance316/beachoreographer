@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dance Choreography Tool</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.4.0/p5.js"></script>
-    <script src="p5.sound.min.js"></script> <!-- Reference to your uploaded file -->
+    <script src="p5.sound.min.js"></script> <!-- Ensure you have this library loaded -->
 </head>
 <body>
     <h1>Dance Choreography Tool</h1>
@@ -65,22 +65,23 @@
             }
         }
 
+        // Humanoid Dancer class
         class Dancer {
             constructor(x, y, size) {
                 this.x = x;
                 this.y = y;
-                this.size = size;  // Used for the size of the figure (radius of head)
-                this.angle = 0;    // Used to rotate limbs
-                this.skinColor = color(255, 220, 185);  // Default skin color
+                this.size = size;  // Head size
+                this.angle = 0;    // For animating body movements
+                this.skinColor = color(255, 220, 185);  // Default skin tone
                 this.clothingColor = color(0, 0, 255);  // Default clothing color (blue)
             }
 
             move() {
-                // Basic walking animation: arms and legs alternate positions
+                // Simple dance movement based on time to simulate a "walking" or "dancing" animation
                 this.angle += 0.1;
                 let beat = song ? song.currentTime() : 0;
 
-                // Change leg and arm positions slightly based on song time for animation
+                // Moving arms and legs to simulate walking or dancing
                 this.leftLegY = this.y + this.size * 2 + Math.sin(beat * 2) * 20;
                 this.rightLegY = this.y + this.size * 2 + Math.cos(beat * 2) * 20;
 
@@ -89,26 +90,35 @@
             }
 
             display() {
-                // Draw head
+                // Head (circle)
                 fill(this.skinColor);
                 ellipse(this.x, this.y - this.size, this.size * 2);  // Head
-
-                // Draw body
+                
+                // Body (shirt)
                 fill(this.clothingColor);
-                rect(this.x - 10, this.y - this.size, 20, this.size * 2);  // Body (shirt)
+                rect(this.x - 10, this.y - this.size, 20, this.size * 2);  // Body
 
-                // Draw arms
+                // Arms (lines)
                 stroke(0);
                 strokeWeight(4);
                 line(this.x, this.y - this.size + 10, this.leftArmX, this.y);  // Left arm
                 line(this.x, this.y - this.size + 10, this.rightArmX, this.y);  // Right arm
 
-                // Draw legs
+                // Legs (lines)
                 line(this.x, this.y + this.size, this.x - 20, this.leftLegY);  // Left leg
                 line(this.x, this.y + this.size, this.x + 20, this.rightLegY);  // Right leg
             }
+
+            setSkinColor(newColor) {
+                this.skinColor = newColor;
+            }
+
+            setClothingColor(newColor) {
+                this.clothingColor = newColor;
+            }
         }
 
+        // Add a new dancer when key '1' or '2' is pressed
         function keyPressed() {
             if (key === '1') {
                 dancers.push(new Dancer(200, 200, 20));

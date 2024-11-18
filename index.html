@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dance Choreography Tool</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.4.0/p5.js"></script>
-    <script src="p5.sound.min.js"></script> <!-- Ensure you have this library loaded -->
+    <script src="p5.sound.min.js"></script> <!-- Make sure this file is present -->
 </head>
 <body>
     <h1>Dance Choreography Tool</h1>
@@ -73,7 +73,9 @@
                 this.size = size;  // Head size
                 this.angle = 0;    // For animating body movements
                 this.skinColor = color(255, 220, 185);  // Default skin tone
-                this.clothingColor = color(0, 0, 255);  // Default clothing color (blue)
+                this.shirtColor = color(0, 0, 255);  // Default shirt color (blue)
+                this.pantsColor = color(0, 0, 255);  // Default pants color (blue)
+                this.shoeColor = color(0, 0, 0);  // Default shoe color (black)
             }
 
             move() {
@@ -95,26 +97,43 @@
                 ellipse(this.x, this.y - this.size, this.size * 2);  // Head
                 
                 // Body (shirt)
-                fill(this.clothingColor);
+                fill(this.shirtColor);
                 rect(this.x - 10, this.y - this.size, 20, this.size * 2);  // Body
 
-                // Arms (lines)
-                stroke(0);
-                strokeWeight(4);
-                line(this.x, this.y - this.size + 10, this.leftArmX, this.y);  // Left arm
-                line(this.x, this.y - this.size + 10, this.rightArmX, this.y);  // Right arm
+                // Arms (rectangles for the upper arm and lower arm)
+                fill(this.skinColor);
+                rect(this.x - 10, this.y - this.size + 10, 5, 20);  // Left upper arm
+                rect(this.x - 10, this.y - this.size + 30, 5, 20);  // Left lower arm
+                rect(this.x + 5, this.y - this.size + 10, 5, 20);   // Right upper arm
+                rect(this.x + 5, this.y - this.size + 30, 5, 20);   // Right lower arm
 
-                // Legs (lines)
-                line(this.x, this.y + this.size, this.x - 20, this.leftLegY);  // Left leg
-                line(this.x, this.y + this.size, this.x + 20, this.rightLegY);  // Right leg
+                // Legs (rectangles for thighs and lower legs)
+                fill(this.pantsColor);
+                rect(this.x - 20, this.y + this.size, 10, 30);  // Left thigh
+                rect(this.x - 20, this.y + this.size + 30, 10, 20);  // Left lower leg
+                rect(this.x + 10, this.y + this.size, 10, 30);  // Right thigh
+                rect(this.x + 10, this.y + this.size + 30, 10, 20);  // Right lower leg
+
+                // Shoes (rectangles for shoes)
+                fill(this.shoeColor);
+                rect(this.x - 20, this.y + this.size + 50, 10, 5);  // Left shoe
+                rect(this.x + 10, this.y + this.size + 50, 10, 5);  // Right shoe
             }
 
             setSkinColor(newColor) {
                 this.skinColor = newColor;
             }
 
-            setClothingColor(newColor) {
-                this.clothingColor = newColor;
+            setShirtColor(newColor) {
+                this.shirtColor = newColor;
+            }
+
+            setPantsColor(newColor) {
+                this.pantsColor = newColor;
+            }
+
+            setShoeColor(newColor) {
+                this.shoeColor = newColor;
             }
         }
 

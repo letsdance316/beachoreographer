@@ -1,123 +1,102 @@
 let song;
-let playButton;
 let dancers = [];
+let playButton;
+let canvas;
 
 function setup() {
-    let canvas = createCanvas(600, 400);
+    canvas = createCanvas(600, 400);
     canvas.parent('danceCanvas');
     background(240);
 
-    // Initialize Play Button
+    // Initialize play button
     playButton = select('#playButton');
-    playButton.mousePressed(togglePlayPause);
-    playButton.hide();
+    playButton.mousePressed(togglePlay);
 
-    // Initialize Add Dancer Button
-    select('#addDancer').mousePressed(addDancer);
-
-    // File input for music
-    let fileInput = document.getElementById('fileInput');
-    fileInput.addEventListener('change', handleFileUpload);
+    // File input setup
+    const fileInput = select('#fileInput');
+    fileInput.changed(handleFileSelect);
 }
 
 function draw() {
     background(240);
 
+    // Draw dancers
     dancers.forEach(dancer => {
-        dancer.move();
         dancer.display();
+        dancer.move();
     });
 }
 
-function handleFileUpload(event) {
+// Handle audio file upload
+function handleFileSelect(event) {
     const file = event.target.files[0];
     if (file) {
         const reader = new FileReader();
         reader.onload = function (e) {
-            song = loadSound(e.target.result, () => {
-                playButton.show();
-                playButton.removeAttribute('disabled');
-            });
+            song = loadSound(e.target.result, songLoaded, songError);
         };
         reader.readAsDataURL(file);
     }
 }
 
-function togglePlayPause() {
-    if (song.isPlaying()) {
+// Called when the song is loaded successfully
+function songLoaded() {
+    playButton.removeAttribute('disabled');
+}
+
+// Called if there's an error loading the song
+function songError(err) {
+    console.error('Error loading song:', err);
+}
+
+// Play/pause toggle
+function togglePlay() {
+    if (song && song.isPlaying()) {
         song.pause();
         playButton.html('Play');
-    } else {
+    } else if (song) {
         song.play();
         playButton.html('Pause');
     }
 }
 
-// Add a dancer with selected appearance
-function addDancer() {
-    const skinColor = document.getElementById('skinColor').value;
-    const shirtColor = document.getElementById('shirtColor').value;
-    const pantsColor = document.getElementById('pantsColor').value;
-    const size = parseInt(document.getElementById('dancerSize').value);
-
-    const x = random(width / 4, (3 * width) / 4);
-    const y = random(height / 4, (3 * height) / 4);
-
-    dancers.push(new Humanoid(x, y, size, skinColor, shirtColor, pantsColor));
-}
-
-// Humanoid class for 3D-inspired dancers
-class Humanoid {
+// Simple Dancer class
+class Dancer {
     constructor(x, y, size, skinColor, shirtColor, pantsColor) {
         this.x = x;
         this.y = y;
         this.size = size;
-        this.skinColor = skinColor || '#F5CBA7';
-        this.shirtColor = shirtColor || '#2980B9';
-        this.pantsColor = pantsColor || '#1C2833';
-        this.armSwing = 0;
-        this.legSwing = 0;
-        this.swingDirection = 1;
+        this.skinColor = skinColor;
+        this.shirtColor = shirtColor;
+        this.pantsColor = pantsColor;
     }
 
     move() {
-        this.armSwing += this.swingDirection * 0.05;
-        this.legSwing += this.swingDirection * 0.03;
-        if (this.armSwing > 0.5 || this.armSwing < -0.5) {
-            this.swingDirection *= -1;
-        }
+        // Basic movement logic
+        this.y += sin(frameCount * 0.1) * 2;
     }
 
     display() {
         push();
-        translate(this.x, this.y);
-
-        // Torso
-        fill(this.shirtColor);
-        rect(-this.size / 4, 0, this.size / 2, this.size);
-
-        // Head
         fill(this.skinColor);
-        ellipse(0, -this.size / 2, this.size / 1.5);
+        ellipse(this.x, this.y - this.size * 0.6, this.size * 0.4); // Head
 
-        // Arms
         fill(this.shirtColor);
-        let armOffset = this.size / 1.5;
-        let armLength = this.size * 0.8;
-        let armSwingOffset = this.armSwing * this.size / 3;
+        rect(this.x - this.size * 0.2, this.y - this.size * 0.3, this.size * 0.4, this.size * 0.5); // Body
 
-        rect(-armOffset, this.size / 4 + armSwingOffset, armLength, this.size / 5);
-        rect(armOffset - armLength, this.size / 4 - armSwingOffset, armLength, this.size / 5);
-
-        // Legs
         fill(this.pantsColor);
-        let legOffset = this.size / 4;
-        let legLength = this.size * 1.2;
-        let legSwingOffset = this.legSwing * this.size / 2;
-
-        rect(-legOffset, this.size + legSwingOffset, this.size / 5, legLength);
-        rect(legOffset - this.size / 5, this.size - legSwingOffset, this.size / 5, legLength);
-
+        rect(this.x - this.size * 0.15, this.y, this.size * 0.1, this.size * 0.4); // Left leg
+        rect(this.x + this.size * 0.05, this.y, this.size * 0.1, this.size * 0.4); // Right leg
         pop();
     }
 }
+
+// Add dancer when the button is clicked
+select('#addDancer').mousePressed(() => {
+    const skinColor = select('#skinColor').value();
+    const shirtColor = select('#shirtColor').value();
+    const pantsColor = select('#pantsColor').value();
+    const size = parseInt(select('#dancerSize').value(), 10);
+
+    dancers.push(new Dancer(random(100, 500), 300, size, skinColor, shirtColor, pantsColor));
+});

@@ -11,9 +11,10 @@ function setup() {
 
     // Play button
     playButton = createButton("Play");
-    playButton.position(10, 40);  // Adjusting position if necessary
+    playButton.position(10, 60);  // Adjusted position to make sure it's visible
     playButton.mousePressed(togglePlay);
-    
+    playButton.hide();  // Initially hidden, will show after song is loaded
+
     // Dancer add button
     addDancerButton = select('#addDancer');
     addDancerButton.mousePressed(addDancer);
@@ -53,7 +54,7 @@ function handleFileSelect(event) {
 
 // Show play button after sound is loaded
 function songLoaded() {
-    playButton.show();
+    playButton.show();  // Show the play button when song is loaded
 }
 
 // Play/Pause button toggle

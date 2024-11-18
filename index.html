@@ -17,16 +17,25 @@
         }
     </style>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.4.0/p5.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.4.0/addons/p5.sound.min.js"></script>
 </head>
 <body>
     <h1>Dance Choreography Tool</h1>
-    <label for="dancerColor">Dancer Color:</label>
-    <input type="color" id="dancerColor" value="#0000ff">
-    <label for="dancerSize">Size:</label>
-    <input type="number" id="dancerSize" value="20" min="10" max="50">
-    <button id="addDancer">Add Dancer</button>
+    <div>
+        <label for="dancerColor">Dancer Color:</label>
+        <input type="color" id="dancerColor" value="#0000ff">
+        <label for="dancerSize">Size:</label>
+        <input type="number" id="dancerSize" value="20" min="10" max="50">
+        <button id="addDancer">Add Dancer</button>
+    </div>
+    <div>
+        <label for="fileInput">Upload Music:</label>
+        <input type="file" id="fileInput" accept="audio/*">
+        <button id="playPauseButton" disabled>Play</button>
+    </div>
     <div id="danceCanvas"></div>
     <script src="script.js"></script>
 </body>
 </html>
+
 

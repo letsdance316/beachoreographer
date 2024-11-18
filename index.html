@@ -4,25 +4,99 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dance Choreography Tool</title>
-    <link rel="stylesheet" href="style.css">
-    <!-- Include the libraries in the correct order -->
+    <!-- Load p5.js from CDN -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.4.0/p5.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js-sound/1.4.0/p5.sound.min.js"></script>
+    <!-- Load p5.sound.js from the root of the repository -->
+    <script src="p5.sound.min.js"></script> <!-- Reference to your uploaded file -->
 </head>
 <body>
     <h1>Dance Choreography Tool</h1>
     <p>Upload a song and choreograph your moves!</p>
     <input type="file" id="fileInput" accept="audio/*">
-    <button id="playButton" disabled>Play</button>
-    <button id="addDancer">Add Dancer</button>
-    <div id="appearanceOptions">
-        <p>Select dancer appearance:</p>
-        <label>Skin Color: <input type="color" id="skinColor" value="#F5CBA7"></label><br>
-        <label>Shirt Color: <input type="color" id="shirtColor" value="#2980B9"></label><br>
-        <label>Pants Color: <input type="color" id="pantsColor" value="#1C2833"></label><br>
-        <label>Size: <input type="number" id="dancerSize" value="50" min="30" max="100"></label><br>
-    </div>
-    <div id="danceCanvas"></div>
-    <script src="script.js"></script>
+    <br>
+    <button id="playButton">Play</button>
+    <canvas id="danceCanvas"></canvas>
+
+    <script>
+        let song;
+        let dancers = [];
+
+        // Set up the canvas and play button
+        function setup() {
+            createCanvas(600, 400);
+            background(240);
+
+            // Play button functionality
+            const playButton = select('#playButton');
+            playButton.mousePressed(togglePlay);
+
+            let input = document.getElementById('fileInput');
+            input.addEventListener('change', handleFileSelect, false);
+        }
+
+        function draw() {
+            background(240);
+            // Draw the dancers
+            dancers.forEach(dancer => {
+                dancer.display();
+                dancer.move();
+            });
+        }
+
+        function handleFileSelect(event) {
+            const file = event.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    song = loadSound(e.target.result, songLoaded);
+                };
+                reader.readAsDataURL(file);
+            }
+        }
+
+        function songLoaded() {
+            select('#playButton').show();
+        }
+
+        function togglePlay() {
+            if (song.isPlaying()) {
+                song.pause();
+                select('#playButton').html("Play");
+            } else {
+                song.play();
+                select('#playButton').html("Pause");
+            }
+        }
+
+        class Dancer {
+            constructor(x, y, radius) {
+                this.x = x;
+                this.y = y;
+                this.radius = radius;
+                this.angle = 0;
+            }
+
+            move() {
+                // Sync movement with the song's current time
+                let beat = song.currentTime();
+                this.x = 200 + Math.sin(this.angle) * 100;
+                this.y = 200 + Math.cos(this.angle) * 100;
+                this.angle += 0.1 + (beat % 2) * 0.02;
+            }
+
+            display() {
+                fill(100, 100, 255);
+                ellipse(this.x, this.y, this.radius * 2);
+            }
+        }
+
+        function keyPressed() {
+            if (key === '1') {
+                dancers.push(new Dancer(200, 200, 20));
+            } else if (key === '2') {
+                dancers.push(new Dancer(400, 200, 20));
+            }
+        }
+    </script>
 </body>
 </html>
